@@ -1,4 +1,4 @@
-package com.alexastudillo.erp.entities;
+package com.alexastudillo.erp.company.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -24,49 +24,49 @@ import lombok.Setter;
 @Entity
 @Table(name = "persons")
 @NoArgsConstructor
-public class Person implements Serializable{
+public class Person implements Serializable {
 	private static final long serialVersionUID = -5164233838150608535L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
 	private Long id;
-	
+
 	@Column(name = "id_card", unique = true, nullable = false, length = 15)
 	@Getter
 	@Setter
 	private String idCard;
-	
+
 	@Column(name = "social_reason", unique = true)
 	@Getter
 	@Setter
 	private String socialReason;
-	
+
 	@Column(name = "first_name", length = 50)
 	@Getter
 	@Setter
 	private String firstName;
-	
+
 	@Column(name = "last_name", length = 50)
 	private String lastName;
 
 	@Column(name = "date_birth")
 	private Date birthdate;
-	
+
 	@Column(name = "juridical_person", nullable = false)
 	private boolean juridicalPerson;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "gender_id")
 	private Gender gender;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "document_type_id")
-	private PersonDocumentType documentType;	
+	private PersonDocumentType documentType;
 
 	@Column(name = "email", unique = true, length = 60)
 	private String email;
-	
+
 	@Column(name = "active", nullable = false)
 	@Getter
 	@Setter

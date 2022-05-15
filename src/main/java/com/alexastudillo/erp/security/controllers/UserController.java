@@ -26,6 +26,5 @@ public class UserController {
 		final List<User> data = userRepository.findAll();
 		return new ResponseHandler().generateResponse("successful", HttpStatus.OK, data);
 	}
-	
-	
+
 }

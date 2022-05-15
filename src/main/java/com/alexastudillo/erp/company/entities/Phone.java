@@ -21,46 +21,31 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "companies")
+@Table(name = "phones")
 @NoArgsConstructor
-public class Company implements Serializable {
-	private static final long serialVersionUID = 1986673262635332986L;
+public class Phone implements Serializable {
+	private static final long serialVersionUID = -5353664380714891126L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
 	private Long id;
 
-	@Column(name = "tradename", nullable = false)
+	@Column(name = "number", length = 16, unique = true, nullable = false)
 	@Getter
 	@Setter
-	private String tradename;
-
-	@Column(name = "special_taxpayer_code", unique = true)
-	@Getter
-	@Setter
-	private String specialTaxpayerCode;
-
-	@Column(name = "active", nullable = false)
-	@Getter
-	@Setter
-	private boolean active;
-
-	@Column(name = "special_taxpayer", nullable = false)
-	@Getter
-	@Setter
-	private boolean specialTaxpayer;
-
-	@Column(name = "keep_accounts", nullable = false)
-	@Getter
-	@Setter
-	private boolean keepAccounts;
+	private String number;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "person_id")
 	@Getter
 	@Setter
 	private Person person;
+
+	@Column(name = "active", nullable = false)
+	@Getter
+	@Setter
+	private boolean active;
 
 	@Column(name = "creation_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL", updatable = false)
 	@CreationTimestamp

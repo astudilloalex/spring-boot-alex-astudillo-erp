@@ -39,7 +39,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
 		if (alreadySetup)
 			return;
-		final Set<Privilege> privileges = new HashSet<Privilege>();		
+		final Set<Privilege> privileges = new HashSet<Privilege>();
 		privileges.add(createPrivilege("CREATE"));
 		privileges.add(createPrivilege("READ"));
 		privileges.add(createPrivilege("UPDATE"));

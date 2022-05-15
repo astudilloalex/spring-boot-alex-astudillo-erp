@@ -39,9 +39,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		final JWTAuthenticationFilter authFilter = new JWTAuthenticationFilter(authenticationManager(), jwtTokenUtil);
 		final JWTAuthorizationFilter authorizationFilter = new JWTAuthorizationFilter(authenticationManager(),
 				jwtTokenUtil);
-		http.cors().and().csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST, SecurityConstants.SIGN_IN_URL).permitAll()
-				.anyRequest().authenticated().and()
-				.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+		http.cors().and().csrf().disable().authorizeRequests()
+				.antMatchers(HttpMethod.POST, SecurityConstants.SIGN_IN_URL).permitAll().anyRequest().authenticated()
+				.and().addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class).sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 	}
@@ -50,7 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userService).passwordEncoder(passwordEncoder());
 	}
-	
+
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

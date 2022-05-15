@@ -1,4 +1,4 @@
-package com.alexastudillo.erp.entities;
+package com.alexastudillo.erp.company.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
