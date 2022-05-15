@@ -10,6 +10,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alexastudillo.erp.company.entities.Company;
+import com.alexastudillo.erp.company.entities.Person;
+import com.alexastudillo.erp.company.repositories.CompanyRepository;
+import com.alexastudillo.erp.company.repositories.PersonRepository;
+import com.alexastudillo.erp.entities.PersonDocumentType;
+import com.alexastudillo.erp.repositories.PersonDocumentTypeRepository;
 import com.alexastudillo.erp.security.entities.Privilege;
 import com.alexastudillo.erp.security.entities.Role;
 import com.alexastudillo.erp.security.entities.User;
@@ -17,23 +23,20 @@ import com.alexastudillo.erp.security.repositories.PrivilegeRepository;
 import com.alexastudillo.erp.security.repositories.RoleRepository;
 import com.alexastudillo.erp.security.repositories.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
 	private boolean alreadySetup = false;
 
 	private final PrivilegeRepository privilegeRepository;
 	private final RoleRepository roleRepository;
 	private final UserRepository userRepository;
+	private final PersonRepository personRepository;
+	private final CompanyRepository companyRepository;
+	private final PersonDocumentTypeRepository documentTypeRepository;
 	private final PasswordEncoder passwordEncoder;
-
-	public SetupDataLoader(final PrivilegeRepository privilegeRepository, final RoleRepository roleRepository,
-			final UserRepository userRepository, final PasswordEncoder passwordEncoder) {
-		super();
-		this.privilegeRepository = privilegeRepository;
-		this.roleRepository = roleRepository;
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
 
 	@Override
 	public void onApplicationEvent(final ContextRefreshedEvent event) {
@@ -51,8 +54,9 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 			user.setAccountNonLocked(true);
 			user.setCredentialsNonExpired(true);
 			user.setEnabled(true);
+			user.setCompany(createCompany());
 			user.setPassword(passwordEncoder.encode("admin"));
-			user.setRoles(new HashSet<Role>(Arrays.asList(createRole("ADMIN", privileges))));
+			user.setRoles(new HashSet<Role>(Arrays.asList(createRole("SUPER", privileges))));
 			user.setUsername("superuser");
 			userRepository.save(user);
 		}
@@ -80,5 +84,47 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 			roleRepository.save(role);
 		}
 		return role;
+	}
+	
+	@Transactional
+	private Person createPerson() {
+		Person person=personRepository.findByIdCard("0123456789001");
+		if(person==null) {
+			person=new Person();
+			person.setActive(true);
+			person.setIdCard("0123456789001");
+			person.setSocialReason("ALEX ASTUDILLO");
+			person.setJuridicalPerson(true);
+			person.setDocumentType(createDocumentType());
+			personRepository.save(person);
+		}
+		return person;
+	}
+	
+	@Transactional
+	private PersonDocumentType createDocumentType() {
+		PersonDocumentType type=documentTypeRepository.findByName("RUC");
+		if(type==null) {
+			type=new PersonDocumentType();
+			type.setActive(true);
+			type.setName("RUC");
+			documentTypeRepository.save(type);
+		}
+		return type;
+	}
+	
+	@Transactional
+	private Company createCompany() {
+		Company company=companyRepository.findById(1L).orElse(null);
+		if(company==null) {
+			company=new Company();
+			company.setActive(true);
+			company.setKeepAccounts(true);
+			company.setPerson(createPerson());
+			company.setSpecialTaxpayer(false);
+			company.setTradename("ALEX ASTUDILLO");
+			companyRepository.save(company);
+		}
+		return company;
 	}
 }

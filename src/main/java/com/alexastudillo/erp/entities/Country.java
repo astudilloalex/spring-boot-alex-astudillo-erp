@@ -1,14 +1,13 @@
-package com.alexastudillo.erp.company.entities;
+package com.alexastudillo.erp.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,31 +18,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "cities")
+@Table(name = "countries")
 @NoArgsConstructor
-public class City implements Serializable {
-	private static final long serialVersionUID = 6905818544827164977L;
+public class Country implements Serializable {
+	private static final long serialVersionUID = 5655902172750977837L;
 
 	@Id
-	@Column(name = "id", columnDefinition = "SMALLINT")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
 	private Short id;
 
-	@Column(name = "code")
+	@Column(name = "code", columnDefinition = "CHAR(2) UNIQUE NOT NULL")
 	@Getter
 	@Setter
 	private String code;
 
-	@Column(name = "name", nullable = false)
+	@Column(name = "name", length = 120, unique = true, nullable = false)
 	@Getter
 	@Setter
 	private String name;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "country_id", referencedColumnName = "id", nullable = false)
-	@Getter
-	@Setter
-	private Country country;
 
 	@Column(name = "active", nullable = false)
 	@Getter
@@ -59,4 +52,5 @@ public class City implements Serializable {
 	@UpdateTimestamp
 	@Getter
 	private Timestamp updateDate;
+
 }

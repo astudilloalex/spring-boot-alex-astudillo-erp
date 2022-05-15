@@ -1,4 +1,4 @@
-package com.alexastudillo.erp.company.entities;
+package com.alexastudillo.erp.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -18,22 +18,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "countries")
+@Table(name = "person_document_types")
 @NoArgsConstructor
-public class Country implements Serializable {
-	private static final long serialVersionUID = 5655902172750977837L;
+public class PersonDocumentType implements Serializable {
+	private static final long serialVersionUID = 992218705457176910L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Getter
 	private Short id;
 
-	@Column(name = "code", columnDefinition = "CHAR(2) UNIQUE NOT NULL")
-	@Getter
-	@Setter
-	private String code;
-
-	@Column(name = "name", length = 120, unique = true, nullable = false)
+	@Column(name = "name", nullable = false, unique = true)
 	@Getter
 	@Setter
 	private String name;
@@ -52,5 +47,4 @@ public class Country implements Serializable {
 	@UpdateTimestamp
 	@Getter
 	private Timestamp updateDate;
-
 }

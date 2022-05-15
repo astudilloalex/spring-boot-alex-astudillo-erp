@@ -17,6 +17,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.alexastudillo.erp.entities.Gender;
+import com.alexastudillo.erp.entities.PersonDocumentType;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,7 +35,7 @@ public class Person implements Serializable {
 	@Getter
 	private Long id;
 
-	@Column(name = "id_card", unique = true, nullable = false, length = 15)
+	@Column(name = "id_card", unique = true, nullable = false, length = 20)
 	@Getter
 	@Setter
 	private String idCard;
@@ -48,20 +51,30 @@ public class Person implements Serializable {
 	private String firstName;
 
 	@Column(name = "last_name", length = 50)
+	@Getter
+	@Setter
 	private String lastName;
 
 	@Column(name = "date_birth")
+	@Getter
+	@Setter
 	private Date birthdate;
 
 	@Column(name = "juridical_person", nullable = false)
+	@Getter
+	@Setter
 	private boolean juridicalPerson;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "gender_id")
+	@Getter
+	@Setter
 	private Gender gender;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "document_type_id")
+	@JoinColumn(name = "document_type_id", nullable = false)
+	@Getter
+	@Setter
 	private PersonDocumentType documentType;
 
 	@Column(name = "email", unique = true, length = 60)

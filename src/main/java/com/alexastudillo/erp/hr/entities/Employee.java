@@ -64,7 +64,7 @@ public class Employee implements Serializable {
 	private Department department;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "manager_id", referencedColumnName = "id", nullable = false)
+	@JoinColumn(name = "manager_id")
 	@Getter
 	@Setter
 	private Employee manager;
