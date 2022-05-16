@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 	private final UserRepository userRepository;
 
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_SUPER')")
 	@GetMapping(APIConstants.API_V1_URL + "/users/all")
 	public ResponseEntity<Object> getAllUsers() {
 		final List<User> data = userRepository.findAll();

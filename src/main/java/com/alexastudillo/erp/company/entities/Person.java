@@ -71,7 +71,7 @@ public class Person implements Serializable {
 	@Setter
 	private Gender gender;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "document_type_id", nullable = false)
 	@Getter
 	@Setter

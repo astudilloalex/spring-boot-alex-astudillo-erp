@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,6 +27,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.alexastudillo.erp.company.entities.Company;
+import com.alexastudillo.erp.company.entities.Person;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -46,24 +49,25 @@ public class User implements UserDetails {
 	private String password;
 
 	@Column(name = "account_non_locked", nullable = false)
-	@JsonProperty(access = Access.WRITE_ONLY)
 	private boolean accountNonLocked;
 
 	@Column(name = "account_non_expired", nullable = false)
-	@JsonProperty(access = Access.WRITE_ONLY)
 	private boolean accountNonExpired;
 
 	@Column(name = "credentials_non_expired", nullable = false)
-	@JsonProperty(access = Access.WRITE_ONLY)
 	private boolean credentialsNonExpired;
 
 	@Column(name = "enabled", nullable = false)
-	@JsonProperty(access = Access.WRITE_ONLY)
 	private boolean enabled;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "company_id", nullable = false)
+	@JsonIgnore
 	private Company company;
+
+	@OneToOne
+	@JoinColumn(name = "person_id", nullable = false)
+	private Person person;
 
 	@Column(name = "creation_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL", updatable = false)
 	@CreationTimestamp
@@ -84,10 +88,11 @@ public class User implements UserDetails {
 	}
 
 	@Override
+	@JsonIgnore
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		final List<GrantedAuthority> authorities = new ArrayList<>();
 		for (final Role role : roles) {
-			authorities.add(new SimpleGrantedAuthority(role.getName()));
+			authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
 			role.getPrivileges().stream().map(privilege -> new SimpleGrantedAuthority(privilege.getName()))
 					.forEach(authorities::add);
 		}
@@ -178,5 +183,13 @@ public class User implements UserDetails {
 
 	public void setCompany(Company company) {
 		this.company = company;
+	}
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public void setPerson(Person person) {
+		this.person = person;
 	}
 }
