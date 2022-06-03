@@ -16,6 +16,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -57,17 +59,18 @@ public class Company implements Serializable {
 	private boolean keepAccounts;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "person_id")
+	@JoinColumn(name = "person_id", nullable = false)
+	@JsonIgnoreProperties({ "hibernateLazyInitializer" })
 	@Getter
 	@Setter
 	private Person person;
 
-	@Column(name = "creation_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL", updatable = false)
+	@Column(name = "creation_date", updatable = false)
 	@CreationTimestamp
 	@Getter
 	private Timestamp creationDate;
 
-	@Column(name = "update_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL")
+	@Column(name = "update_date")
 	@UpdateTimestamp
 	@Getter
 	private Timestamp updateDate;

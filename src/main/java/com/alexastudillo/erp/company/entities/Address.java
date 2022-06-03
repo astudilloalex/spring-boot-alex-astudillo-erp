@@ -17,6 +17,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.alexastudillo.erp.entities.City;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,12 +58,16 @@ public class Address implements Serializable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "person_id")
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = true)
 	@Getter
 	@Setter
 	private Person person;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "city_id", referencedColumnName = "id", nullable = false)
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+	@JsonIdentityReference(alwaysAsId = true)
 	@Getter
 	@Setter
 	private City city;
@@ -70,12 +77,12 @@ public class Address implements Serializable {
 	@Setter
 	private boolean active;
 
-	@Column(name = "creation_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL", updatable = false)
+	@Column(name = "creation_date", updatable = false)
 	@CreationTimestamp
 	@Getter
 	private Timestamp creationDate;
 
-	@Column(name = "update_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL")
+	@Column(name = "update_date")
 	@UpdateTimestamp
 	@Getter
 	private Timestamp updateDate;

@@ -33,7 +33,7 @@ public class Country implements Serializable {
 	@Setter
 	private String code;
 
-	@Column(name = "name", length = 120, unique = true, nullable = false)
+	@Column(name = "name", length = 150, unique = true, nullable = false)
 	@Getter
 	@Setter
 	private String name;
@@ -43,12 +43,12 @@ public class Country implements Serializable {
 	@Setter
 	private boolean active;
 
-	@Column(name = "creation_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL", updatable = false)
+	@Column(name = "creation_date", updatable = false)
 	@CreationTimestamp
 	@Getter
 	private Timestamp creationDate;
 
-	@Column(name = "update_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL")
+	@Column(name = "update_date")
 	@UpdateTimestamp
 	@Getter
 	private Timestamp updateDate;

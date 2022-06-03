@@ -2,6 +2,7 @@ package com.alexastudillo.erp.init;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.context.ApplicationListener;
@@ -47,6 +48,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 		privileges.add(createPrivilege("READ"));
 		privileges.add(createPrivilege("UPDATE"));
 		privileges.add(createPrivilege("DELETE"));
+		createCompany();
 		User user = userRepository.findByUsername("superuser");
 		if (user == null) {
 			user = new User();
@@ -54,7 +56,6 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 			user.setAccountNonLocked(true);
 			user.setCredentialsNonExpired(true);
 			user.setEnabled(true);
-			user.setCompany(createCompany());
 			user.setPassword(passwordEncoder.encode("admin"));
 			user.setRoles(new HashSet<Role>(Arrays.asList(createRole("SUPER", privileges))));
 			user.setPerson(createPerson());
@@ -77,21 +78,21 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 
 	@Transactional
 	private Role createRole(final String name, final Set<Privilege> privileges) {
-		Role role = roleRepository.findByName(name);
-		if (role == null) {
-			role = new Role();
+		final Role role = Optional.ofNullable(roleRepository.findByName(name)).orElse(new Role());
+		if (role.getName() == null) {
 			role.setName(name);
-			role.setPrivileges(privileges);
+			privileges.forEach(privilege -> role.addPrivilege(privilege));
+			role.setActive(true);
 			roleRepository.save(role);
 		}
 		return role;
 	}
-	
+
 	@Transactional
 	private Person createPerson() {
-		Person person=personRepository.findByIdCard("0123456789001");
-		if(person==null) {
-			person=new Person();
+		Person person = personRepository.findByIdCard("0123456789001");
+		if (person == null) {
+			person = new Person();
 			person.setActive(true);
 			person.setIdCard("0123456789001");
 			person.setSocialReason("ALEX ASTUDILLO");
@@ -101,24 +102,24 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 		}
 		return person;
 	}
-	
+
 	@Transactional
 	private PersonDocumentType createDocumentType() {
-		PersonDocumentType type=documentTypeRepository.findByName("RUC");
-		if(type==null) {
-			type=new PersonDocumentType();
+		PersonDocumentType type = documentTypeRepository.findByName("RUC");
+		if (type == null) {
+			type = new PersonDocumentType();
 			type.setActive(true);
 			type.setName("RUC");
 			documentTypeRepository.save(type);
 		}
 		return type;
 	}
-	
+
 	@Transactional
 	private Company createCompany() {
-		Company company=companyRepository.findById(1L).orElse(null);
-		if(company==null) {
-			company=new Company();
+		Company company = companyRepository.findById(1L).orElse(null);
+		if (company == null) {
+			company = new Company();
 			company.setActive(true);
 			company.setKeepAccounts(true);
 			company.setPerson(createPerson());

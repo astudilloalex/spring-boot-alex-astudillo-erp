@@ -9,22 +9,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.alexastudillo.erp.handlers.ResponseHandler;
+import com.alexastudillo.erp.security.entities.User;
 import com.alexastudillo.erp.security.utilities.JWTTokenUtil;
 import com.alexastudillo.erp.security.utilities.SecurityConstants;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+public class JWTAuthorizationFilter extends OncePerRequestFilter {
 	private final JWTTokenUtil jwtTokenUtil;
 
-	public JWTAuthorizationFilter(final AuthenticationManager authenticationManager, final JWTTokenUtil jwtTokenUtil) {
-		super(authenticationManager);
+	public JWTAuthorizationFilter(final JWTTokenUtil jwtTokenUtil) {
 		this.jwtTokenUtil = jwtTokenUtil;
 	}
 
@@ -33,8 +32,8 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 			final FilterChain chain) throws IOException, ServletException {
 		final String header = request.getHeader(SecurityConstants.HEADER_STRING);
 		if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
-			responseClient(response, new ResponseHandler().generateResponseWithoutData("security-token-required",
-					HttpStatus.UNAUTHORIZED));
+			responseClient(response,
+					new ResponseHandler<Object>().generateResponse("security-token-required", HttpStatus.UNAUTHORIZED));
 			return;
 		}
 		final String token = request.getHeader(SecurityConstants.HEADER_STRING).replace(SecurityConstants.TOKEN_PREFIX,
@@ -46,8 +45,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 			} catch (TokenExpiredException e) {
 				message = "token-has-expired";
 			}
-			responseClient(response,
-					new ResponseHandler().generateResponseWithoutData(message, HttpStatus.UNAUTHORIZED));
+			responseClient(response, new ResponseHandler<Object>().generateResponse(message, HttpStatus.UNAUTHORIZED));
 			return;
 		}
 		final UsernamePasswordAuthenticationToken authentication = getAuthentication(token);
@@ -56,11 +54,17 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	}
 
 	private UsernamePasswordAuthenticationToken getAuthentication(final String token) {
-		final String user = jwtTokenUtil.getUsername(token);
-		if (user != null) {
+		final User user = new User();
+		try {
+			user.setId(Long.parseLong(jwtTokenUtil.getUserId(token)));
+			user.setUsername(jwtTokenUtil.getUsername(token));
+			if (user.getUsername() == null) {
+				return null;
+			}
 			return new UsernamePasswordAuthenticationToken(user, null, jwtTokenUtil.getAuthorities(token));
+		} catch (final NumberFormatException e) {
+			return null;
 		}
-		return null;
 	}
 
 	private void responseClient(final HttpServletResponse response, final ResponseEntity<Object> responseEntity) {

@@ -1,6 +1,7 @@
 package com.alexastudillo.erp.security.filters;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			throw new RuntimeException(e);
 		} catch (DatabindException e) {
 			responseClient(response,
-					new ResponseHandler().generateResponseWithoutData(e.getMessage(), HttpStatus.BAD_REQUEST));
+					new ResponseHandler<Object>().generateResponse(e.getMessage(), HttpStatus.BAD_REQUEST));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -55,12 +56,17 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void successfulAuthentication(final HttpServletRequest request, final HttpServletResponse response,
 			final FilterChain chain, final Authentication authResult) throws IOException, ServletException {
-		final String token = jwtTokenUtil.generateToken((User) authResult.getPrincipal());
-		final Map<String, String> mapRes = new HashMap<String, String>();
+		final User user=(User) authResult.getPrincipal();
+		final String token = jwtTokenUtil.generateToken(user);
+		final Map<String, Object> mapRes = new HashMap<String, Object>();
 		mapRes.put("token", token);
+		mapRes.put("data", Arrays.asList(user));
+		mapRes.put("message", "successful");
+		mapRes.put("statusCode", HttpStatus.OK.value());
 		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(new ObjectMapper().writeValueAsString(
-				new ResponseHandler().generateResponse("successful", HttpStatus.OK, mapRes).getBody()));
+				new ResponseHandler<Object>().generateResponse(mapRes, HttpStatus.OK).getBody()));
 		response.getWriter().flush();
 	}
 
@@ -73,7 +79,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		}
 		response.setContentType("application/json");
 		response.getWriter().write(new ObjectMapper().writeValueAsString(
-				new ResponseHandler().generateResponseWithoutData(failed.getMessage(), status).getBody()));
+				new ResponseHandler<Object>().generateResponse(failed.getMessage(), status).getBody()));
 		response.getWriter().flush();
 	}
 

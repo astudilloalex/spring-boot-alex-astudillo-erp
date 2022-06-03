@@ -37,8 +37,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		final JWTAuthenticationFilter authFilter = new JWTAuthenticationFilter(authenticationManager(), jwtTokenUtil);
-		final JWTAuthorizationFilter authorizationFilter = new JWTAuthorizationFilter(authenticationManager(),
-				jwtTokenUtil);
+		final JWTAuthorizationFilter authorizationFilter = new JWTAuthorizationFilter(jwtTokenUtil);
 		http.cors().and().csrf().disable().authorizeRequests()
 				.antMatchers(HttpMethod.POST, SecurityConstants.SIGN_IN_URL).permitAll().anyRequest().authenticated()
 				.and().addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
