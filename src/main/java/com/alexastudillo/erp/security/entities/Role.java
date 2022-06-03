@@ -18,29 +18,42 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "roles")
+@Getter
+@Setter
 public class Role implements Serializable {
 	private static final long serialVersionUID = 1817959705417509031L;
 
 	@Id
-	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Short id;
 
 	@Column(name = "name", nullable = false, unique = true, length = 15)
 	private String name;
 
+	@ManyToMany
+	@JoinTable(name = "role_resources", joinColumns = {
+			@JoinColumn(name = "role_id", referencedColumnName = "id") }, inverseJoinColumns = {
+					@JoinColumn(name = "resource_id", referencedColumnName = "id") })
+	private Set<ERPResource> erpResources = new HashSet<ERPResource>();
+
 	@Column(name = "active", nullable = false)
 	private boolean active;
 
-	@Column(name = "creation_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL", updatable = false)
+	@Column(name = "creation_date", updatable = false)
 	@CreationTimestamp
 	private Timestamp creationDate;
 
-	@Column(name = "update_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL")
+	@Column(name = "update_date")
 	@UpdateTimestamp
 	private Timestamp updateDate;
 
@@ -52,63 +65,37 @@ public class Role implements Serializable {
 	@JoinTable(name = "role_privileges", joinColumns = {
 			@JoinColumn(name = "role_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "privilege_id", referencedColumnName = "id") })
+	@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+	@JsonIdentityReference(alwaysAsId = true)
 	private Set<Privilege> privileges = new HashSet<Privilege>();
 
-	public Role() {
-		// TODO Auto-generated constructor stub
+	public void addPrivilege(final Privilege privilege) {
+		this.privileges.add(privilege);
+		privilege.getRoles().add(this);
 	}
 
-	public Role(final String name, final boolean active, final Set<Privilege> privileges) {
-		this.name = name;
-		this.active = active;
-		this.privileges = privileges;
+	public void removePrivilege(final Privilege privilege) {
+		this.privileges.remove(privilege);
+		privilege.getRoles().remove(this);
 	}
 
-	public Short getId() {
-		return id;
+	public void addResource(final ERPResource resource) {
+		this.erpResources.add(resource);
+		resource.getRoles().add(this);
 	}
 
-	public void setId(Short id) {
-		this.id = id;
+	public void removeResource(final ERPResource resource) {
+		this.erpResources.remove(resource);
+		resource.getRoles().remove(this);
 	}
 
-	public String getName() {
-		return name;
+	public void addUser(final User user) {
+		this.users.add(user);
+		user.getRoles().add(this);
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
-	public Set<Privilege> getPrivileges() {
-		return privileges;
-	}
-
-	public void setPrivileges(Set<Privilege> privileges) {
-		this.privileges = privileges;
-	}
-
-	public Timestamp getCreationDate() {
-		return creationDate;
-	}
-
-	public Timestamp getUpdateDate() {
-		return updateDate;
-	}
-
-	public Set<User> getUsers() {
-		return users;
-	}
-
-	public void setUsers(Set<User> users) {
-		this.users = users;
+	public void removeUser(final User user) {
+		this.users.remove(user);
+		user.getRoles().remove(this);
 	}
 }

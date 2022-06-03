@@ -16,7 +16,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -26,11 +25,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.alexastudillo.erp.company.entities.Company;
 import com.alexastudillo.erp.company.entities.Person;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
@@ -39,6 +40,8 @@ public class User implements UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Setter
+	@Getter
 	private Long id;
 
 	@Column(name = "username", unique = true, length = 50, nullable = false)
@@ -60,31 +63,43 @@ public class User implements UserDetails {
 	@Column(name = "enabled", nullable = false)
 	private boolean enabled;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "company_id", nullable = false)
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "person_id", referencedColumnName = "id", nullable = false)
 	@JsonIgnore
-	private Company company;
-
-	@OneToOne
-	@JoinColumn(name = "person_id", nullable = false)
+	@Getter
+	@Setter
 	private Person person;
 
-	@Column(name = "creation_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL", updatable = false)
+	@Column(name = "creation_date", updatable = false)
 	@CreationTimestamp
+	@Getter
 	private Timestamp creationDate;
 
-	@Column(name = "update_date", columnDefinition = "TIMESTAMP WITH TIME ZONE NOT NULL")
+	@Column(name = "update_date")
 	@UpdateTimestamp
+	@Getter
 	private Timestamp updateDate;
 
 	@ManyToMany
 	@JoinTable(name = "user_roles", joinColumns = {
 			@JoinColumn(name = "user_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "role_id", referencedColumnName = "id") })
+	@Getter
+	@Setter
 	private Set<Role> roles = new HashSet<Role>();
 
 	public User() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public void addRole(final Role role) {
+		this.roles.add(role);
+		role.getUsers().add(this);
+	}
+
+	public void removeRole(final Role role) {
+		this.roles.remove(role);
+		role.getUsers().remove(this);
 	}
 
 	@Override
@@ -97,14 +112,6 @@ public class User implements UserDetails {
 					.forEach(authorities::add);
 		}
 		return authorities;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	@Override
@@ -159,37 +166,5 @@ public class User implements UserDetails {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
-	}
-
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
-
-	public Timestamp getCreationDate() {
-		return creationDate;
-	}
-
-	public Timestamp getUpdateDate() {
-		return updateDate;
-	}
-
-	public Company getCompany() {
-		return company;
-	}
-
-	public void setCompany(Company company) {
-		this.company = company;
-	}
-
-	public Person getPerson() {
-		return person;
-	}
-
-	public void setPerson(Person person) {
-		this.person = person;
 	}
 }

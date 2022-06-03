@@ -16,49 +16,47 @@ import javax.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "privileges")
-public class Privilege implements Serializable {
-	private static final long serialVersionUID = -4432961731038818370L;
+@Table(name = "erp_resources")
+@Getter
+@Setter
+public class ERPResource implements Serializable {
+	private static final long serialVersionUID = -1758523994216688070L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Getter
 	private Short id;
 
-	@Column(name = "name", nullable = false, unique = true, length = 10)
-	@Getter
-	@Setter
+	@Column(name = "name", nullable = false, unique = true, length = 150)
 	private String name;
 
+	@Column(name = "description")
+	private String description;
+
+	@ManyToMany(mappedBy = "erpResources")
+	private Set<Role> roles = new HashSet<Role>();
+
+	@Column(name = "active", nullable = false)
+	private boolean active;
+
 	@Column(name = "creation_date", updatable = false)
-	@Getter
 	@CreationTimestamp
 	private Timestamp creationDate;
 
 	@Column(name = "update_date")
-	@Getter
 	@UpdateTimestamp
 	private Timestamp updateDate;
 
-	@ManyToMany(mappedBy = "privileges")
-	@JsonIgnore
-	@Getter
-	@Setter
-	private Set<Role> roles = new HashSet<Role>();
-
 	public void addRole(final Role role) {
 		this.roles.add(role);
-		role.getPrivileges().add(this);
+		role.addResource(this);
 	}
 
 	public void removeRole(final Role role) {
 		this.roles.remove(role);
-		role.getPrivileges().remove(this);
+		role.removeResource(this);
 	}
 }
